@@ -6,32 +6,107 @@
     <title>Bitcoin Holdings - Digital Real Estate Investment</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="bi bi-currency-bitcoin text-warning"></i> Bitcoin Holdings
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.html">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="partners.html">Partners</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="voting.html">Voting</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="projections.html">Projections</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
     <div class="container mt-4">
-        <h1>Bitcoin Holdings</h1>
-        <p>Digital Real Estate Investment Platform</p>
-        
-        <!-- Add your content here -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card">
+        <!-- Bitcoin Price Card -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card bg-dark text-white">
                     <div class="card-body">
-                        <h5 class="card-title">Our Platform</h5>
-                        <p class="card-text">
-                            A collaborative Bitcoin investment platform for partners to:
-                            <ul>
-                                <li>Track monthly contributions</li>
-                                <li>Monitor portfolio growth</li>
-                                <li>Participate in voting decisions</li>
-                                <li>View real-time Bitcoin analytics</li>
-                            </ul>
-                        </p>
+                        <div class="row">
+                            <div class="col-md-3 text-center border-end">
+                                <h5 class="text-warning">Bitcoin Price</h5>
+                                <h2 id="btcPrice" class="mb-2">$0.00</h2>
+                                <span id="btcChange" class="badge bg-success">0.00%</span>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="chart-container" style="height: 300px;">
+                                    <canvas id="bitcoinChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Overview -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Next Contribution</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <h3 id="nextContributionDate"></h3>
+                        <p class="mb-0">Team Monthly Total: $800.00</p>
+                        <div class="progress mt-2">
+                            <div class="progress-bar" role="progressbar" style="width: 50%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">Team Goals</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <h4>Yearly Goal: $9,600.00</h4>
+                        <div class="progress mt-2">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 45%"></div>
+                        </div>
+                        <small class="text-muted">45% of yearly goal achieved</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">Partner Distribution</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="distributionChart"></canvas>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/dashboard.js"></script>
 </body>
 </html> 

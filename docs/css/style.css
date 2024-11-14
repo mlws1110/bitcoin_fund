@@ -1,0 +1,75 @@
+/* Main Styles */
+body {
+    background-color: #f8f9fa;
+}
+
+/* Bitcoin Price Card */
+.bitcoin-price-header .card {
+    background: linear-gradient(135deg, #1a1a1a 0%, #373737 100%);
+    border: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.bitcoin-price-header h1 {
+    color: #F7931A;  /* Bitcoin orange */
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Cards */
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #eee;
+    padding: 1rem;
+}
+
+/* Progress Bars */
+.progress {
+    height: 10px;
+    background-color: #e9ecef;
+    border-radius: 10px;
+    margin: 8px 0;
+}
+
+.progress-bar {
+    background-color: #4BC0C0;
+    border-radius: 10px;
+    transition: width 0.6s ease;
+}
+
+/* Charts */
+.chart-container {
+    position: relative;
+    width: 100%;
+    min-height: 300px;
+}
+
+/* Partner Distribution */
+.partner-card {
+    transition: transform 0.2s;
+}
+
+.partner-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Voting System */
+.vote-card {
+    border: 1px solid #eee;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.vote-option {
+    background: #f8f9fa;
+    padding: 0.5rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+} 
