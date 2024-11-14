@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Real Estate vs Bitcoin Investment Comparison</h1>
+</div>
+
+<div class="row">
+    <!-- Comparison Metrics -->
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Investment Comparison</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Real Estate</th>
+                                <th>Bitcoin</th>
+                                <th>Advantage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Initial Investment</td>
+                                <td>$50,000 - $200,000</td>
+                                <td>Any amount</td>
+                                <td><span class="badge bg-success">Bitcoin</span></td>
+                            </tr>
+                            <tr>
+                                <td>Maintenance Costs</td>
+                                <td>1-4% annually</td>
+                                <td>None</td>
+                                <td><span class="badge bg-success">Bitcoin</span></td>
+                            </tr>
+                            <tr>
+                                <td>Liquidity</td>
+                                <td>Months</td>
+                                <td>Instant</td>
+                                <td><span class="badge bg-success">Bitcoin</span></td>
+                            </tr>
+                            <tr>
+                                <td>Historical Returns</td>
+                                <td>3-5% annually</td>
+                                <td>200% annually</td>
+                                <td><span class="badge bg-success">Bitcoin</span></td>
+                            </tr>
+                            <tr>
+                                <td>Management Effort</td>
+                                <td>High</td>
+                                <td>Low</td>
+                                <td><span class="badge bg-success">Bitcoin</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ROI Calculator -->
+        <div class="card">
+            <div class="card-header">
+                <h5>ROI Calculator</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Investment Amount ($)</label>
+                            <input type="number" class="form-control" id="investmentAmount" value="100000">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Investment Period (Years)</label>
+                            <input type="number" class="form-control" id="investmentPeriod" value="5">
+                        </div>
+                        <button class="btn btn-primary" onclick="calculateROI()">Calculate ROI</button>
+                    </div>
+                    <div class="col-md-6">
+                        <div id="roiChart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Benefits -->
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Key Benefits of Bitcoin</h5>
+            </div>
+            <div class="card-body">
+                <div class="benefit-item mb-3">
+                    <h6><i class="bi bi-lightning-charge"></i> Superior Liquidity</h6>
+                    <p>24/7 market access with instant transactions</p>
+                </div>
+                <div class="benefit-item mb-3">
+                    <h6><i class="bi bi-graph-up"></i> Higher Growth Potential</h6>
+                    <p>Historical performance exceeds traditional real estate</p>
+                </div>
+                <div class="benefit-item mb-3">
+                    <h6><i class="bi bi-shield-check"></i> Lower Risk</h6>
+                    <p>No physical damage, tenant, or maintenance risks</p>
+                </div>
+                <div class="benefit-item">
+                    <h6><i class="bi bi-gear"></i> Minimal Management</h6>
+                    <p>Self-custody with no active management needed</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5>Market Insights</h5>
+            </div>
+            <div class="card-body">
+                <div class="market-stat mb-3">
+                    <label>Bitcoin Market Cap</label>
+                    <h4>${{ "{:,.0f}".format(btc_market_cap) }}B</h4>
+                </div>
+                <div class="market-stat mb-3">
+                    <label>Real Estate Market Cap</label>
+                    <h4>${{ "{:,.0f}".format(real_estate_market_cap) }}T</h4>
+                </div>
+                <div class="market-stat">
+                    <label>Growth Potential</label>
+                    <h4>{{ "{:,.0f}".format(growth_potential) }}x</h4>
+                    <small class="text-muted">If Bitcoin captures 10% of real estate market</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+function calculateROI() {
+    const amount = parseFloat(document.getElementById('investmentAmount').value);
+    const years = parseInt(document.getElementById('investmentPeriod').value);
+    
+    // Calculate projections
+    const realEstateData = calculateRealEstateProjection(amount, years);
+    const bitcoinData = calculateBitcoinProjection(amount, years);
+    
+    // Update chart
+    updateROIChart(realEstateData, bitcoinData, years);
+}
+
+function calculateRealEstateProjection(amount, years) {
+    const annualReturn = 0.05; // 5% annual return
+    const values = [amount];
+    
+    for (let year = 1; year <= years; year++) {
+        values.push(amount * Math.pow(1 + annualReturn, year));
+    }
+    
+    return values;
+}
+
+function calculateBitcoinProjection(amount, years) {
+    const annualReturn = 2.0; // 200% annual return
+    const values = [amount];
+    
+    for (let year = 1; year <= years; year++) {
+        values.push(amount * Math.pow(1 + annualReturn, year));
+    }
+    
+    return values;
+}
+
+function updateROIChart(realEstateData, bitcoinData, years) {
+    const years_array = Array.from({length: years + 1}, (_, i) => i);
+    
+    const data = [{
+        x: years_array,
+        y: realEstateData,
+        name: 'Real Estate',
+        type: 'scatter'
+    }, {
+        x: years_array,
+        y: bitcoinData,
+        name: 'Bitcoin',
+        type: 'scatter'
+    }];
+    
+    const layout = {
+        title: 'Investment Growth Comparison',
+        xaxis: {title: 'Years'},
+        yaxis: {title: 'Value ($)'}
+    };
+    
+    Plotly.newPlot('roiChart', data, layout);
+}
+
+// Initial calculation
+calculateROI();
+</script>
+{% endblock %}
+{% endblock %} 

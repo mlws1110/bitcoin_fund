@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Partner Management</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Active Partners</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Ownership</th>
+                            <th>Monthly Contribution</th>
+                            <th>Total Contributed</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for partner in partners %}
+                        <tr>
+                            <td>{{ partner.name }}</td>
+                            <td>{{ partner.email }}</td>
+                            <td>{{ "%.2f"|format(partner.ownership_percentage) }}%</td>
+                            <td>${{ "%.2f"|format(partner.monthly_usd_contribution) }}</td>
+                            <td>${{ "%.2f"|format(partner.total_usd_contributed) }}</td>
+                            <td>{{ partner.status }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

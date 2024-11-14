@@ -1,0 +1,52 @@
+<div class="modal fade" id="partnerDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Partner Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Partner Info -->
+                    <div class="col-md-6">
+                        <div class="partner-info mb-4">
+                            <h6>Contact Information</h6>
+                            <p class="mb-1">Email: <span id="partnerEmail"></span></p>
+                            <p class="mb-1">Joined: <span id="partnerJoinDate"></span></p>
+                            <p class="mb-1">Status: <span id="partnerStatus"></span></p>
+                        </div>
+                        
+                        <div class="contribution-info">
+                            <h6>Contribution Details</h6>
+                            <p class="mb-1">Monthly DCA: $<span id="monthlyContribution"></span></p>
+                            <p class="mb-1">Total BTC: <span id="totalBTC"></span></p>
+                            <p class="mb-1">Ownership: <span id="ownershipPercentage"></span>%</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Partner Analytics -->
+                    <div class="col-md-6">
+                        <canvas id="partnerContributionChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Contribution History -->
+                <div class="contribution-history mt-4">
+                    <h6>Recent Transactions</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm" id="transactionTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Amount (BTC)</th>
+                                    <th>USD Value</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

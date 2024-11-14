@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Security Model</h1>
+</div>
+
+<div class="row">
+    <!-- Multi-Signature Setup -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Multi-Signature Configuration</h5>
+            </div>
+            <div class="card-body">
+                <div class="security-diagram mb-4">
+                    <img src="{{ url_for('static', filename='img/multisig-diagram.svg') }}" alt="Multi-Signature Setup" class="img-fluid">
+                </div>
+                <h6>3-of-5 Multi-Signature Wallet</h6>
+                <div class="key-distribution mt-3">
+                    <div class="key-item">
+                        <i class="bi bi-shield-lock-fill text-primary"></i>
+                        <div class="key-details">
+                            <strong>Key 1:</strong> Primary Cold Storage (Hardware Wallet)
+                            <small class="text-muted d-block">Stored in Bank Vault</small>
+                        </div>
+                    </div>
+                    <div class="key-item mt-2">
+                        <i class="bi bi-shield-lock-fill text-success"></i>
+                        <div class="key-details">
+                            <strong>Key 2:</strong> Backup Cold Storage
+                            <small class="text-muted d-block">Geographically Distributed Location</small>
+                        </div>
+                    </div>
+                    <div class="key-item mt-2">
+                        <i class="bi bi-shield-lock-fill text-info"></i>
+                        <div class="key-details">
+                            <strong>Keys 3-5:</strong> Partner Keys
+                            <small class="text-muted d-block">Distributed Among Managing Partners</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Security Protocols</h5>
+            </div>
+            <div class="card-body">
+                <div class="protocol-item">
+                    <h6><i class="bi bi-shield-check"></i> Transaction Verification</h6>
+                    <ul>
+                        <li>Minimum 3 signatures required for any transaction</li>
+                        <li>24-hour time lock on large transactions</li>
+                        <li>Automated security notifications</li>
+                    </ul>
+                </div>
+                <div class="protocol-item mt-3">
+                    <h6><i class="bi bi-shield-exclamation"></i> Emergency Procedures</h6>
+                    <ul>
+                        <li>Emergency key recovery process</li>
+                        <li>Incident response plan</li>
+                        <li>Partner communication protocol</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Features -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Insurance Coverage</h5>
+            </div>
+            <div class="card-body">
+                <div class="insurance-details">
+                    <div class="coverage-item">
+                        <h6>Digital Asset Coverage</h6>
+                        <p class="coverage-amount">$500,000</p>
+                        <small class="text-muted">Through Custody Partner</small>
+                    </div>
+                    <div class="coverage-item mt-3">
+                        <h6>Policy Details</h6>
+                        <ul>
+                            <li>Theft Protection</li>
+                            <li>Private Key Loss</li>
+                            <li>Hardware Failure</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Inheritance Planning</h5>
+            </div>
+            <div class="card-body">
+                <div class="inheritance-plan">
+                    <h6>Succession Protocol</h6>
+                    <ul>
+                        <li>Documented beneficiary designations</li>
+                        <li>Legal framework for ownership transfer</li>
+                        <li>Partner share distribution process</li>
+                    </ul>
+                    <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#inheritanceModal">
+                        View Inheritance Documents
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5>Security Audit Log</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Action</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for audit in security_audits %}
+                            <tr>
+                                <td>{{ audit.date.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ audit.action }}</td>
+                                <td>
+                                    <span class="badge bg-{{ audit.status_color }}">
+                                        {{ audit.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Inheritance Modal -->
+<div class="modal fade" id="inheritanceModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Inheritance Documentation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Add inheritance documentation content -->
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_css %}
+<style>
+.security-diagram {
+    text-align: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.key-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.protocol-item {
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.coverage-amount {
+    font-size: 24px;
+    font-weight: bold;
+    color: #28a745;
+}
+
+.inheritance-plan {
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+</style>
+{% endblock %}
+{% endblock %} 

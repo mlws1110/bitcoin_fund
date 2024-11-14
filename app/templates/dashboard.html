@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card bg-dark text-white">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center border-end">
+                        <h5 class="text-warning">Bitcoin Price</h5>
+                        <h2 id="btcPrice" class="mb-2">${{ "{:,.2f}".format(btc_price) }}</h2>
+                        <span id="btcChange" class="badge {% if btc_change_24h >= 0 %}bg-success{% else %}bg-danger{% endif %}">
+                            {{ "%.2f"|format(btc_change_24h) }}%
+                        </span>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="bitcoinChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Widget Section -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Next Contribution</h5>
+            </div>
+            <div class="card-body">
+                <h3 id="nextContributionDate"></h3>
+                <p class="mb-0">Team Monthly Total: ${{ "{:,.2f}".format(monthly_team_total) }}</p>
+                <div class="progress mt-2">
+                    <div class="progress-bar" role="progressbar" style="width: {{ (days_until_contribution/30 * 100)|round }}%"></div>
+                </div>
+                <small class="text-muted">{{ days_until_contribution }} days until next contribution</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Team Goals</h5>
+            </div>
+            <div class="card-body">
+                <h4>Yearly Goal: ${{ "{:,.2f}".format(yearly_goal) }}</h4>
+                <div class="progress mt-2">
+                    <div class="progress-bar bg-success" role="progressbar" 
+                         style="width: {{ (total_usd_invested / yearly_goal * 100)|round }}%">
+                    </div>
+                </div>
+                <small class="text-muted">{{ (total_usd_invested / yearly_goal * 100)|round }}% of yearly goal achieved</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Partner Distribution</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="distributionChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Portfolio Overview Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <h6 class="text-muted mb-2">Total BTC Holdings</h6>
+                <h3>{{ "%.8f"|format(total_btc) }} BTC</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <h6 class="text-muted mb-2">Portfolio Value</h6>
+                <h3>${{ "{:,.2f}".format(current_value) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <h6 class="text-muted mb-2">Monthly Team DCA</h6>
+                <h3>${{ "{:,.2f}".format(monthly_team_total) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <h6 class="text-muted mb-2">Total Invested</h6>
+                <h3>${{ "{:,.2f}".format(total_usd_invested) }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Transactions -->
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-clock-history"></i> Recent Transactions</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Partner</th>
+                                <th>Amount (BTC)</th>
+                                <th>Price</th>
+                                <th>Total (USD)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tx in recent_transactions %}
+                            <tr>
+                                <td>{{ tx.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>{{ tx.partner.name }}</td>
+                                <td>{{ "%.8f"|format(tx.amount_btc) }}</td>
+                                <td>${{ "{:,.2f}".format(tx.price_usd) }}</td>
+                                <td>${{ "{:,.2f}".format(tx.amount_btc * tx.price_usd) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Partner Distribution -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-pie-chart"></i> Partner Distribution</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="distributionChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Bitcoin Price Chart
+    const ctx = document.getElementById('bitcoinChart').getContext('2d');
+    const priceData = {
+        labels: [],
+        prices: []
+    };
+    
+    const bitcoinChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: priceData.labels,
+            datasets: [{
+                label: 'Bitcoin Price',
+                data: priceData.prices,
+                borderColor: '#F7931A',
+                backgroundColor: 'rgba(247, 147, 26, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+                pointHoverRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    callbacks: {
+                        label: function(context) {
+                            return `$${context.raw.toLocaleString()}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    ticks: {
+                        color: '#ffffff',
+                        callback: function(value) {
+                            return '$' + value.toLocaleString();
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    ticks: {
+                        color: '#ffffff'
+                    }
+                }
+            }
+        }
+    });
+
+    // Update price and chart
+    function updatePrice() {
+        fetch('/api/bitcoin-price')
+            .then(response => response.json())
+            .then(data => {
+                const now = new Date();
+                priceData.labels.push(now.toLocaleTimeString());
+                priceData.prices.push(data.price);
+
+                if (priceData.labels.length > 50) {
+                    priceData.labels.shift();
+                    priceData.prices.shift();
+                }
+
+                document.getElementById('btcPrice').textContent = 
+                    `$${data.price.toLocaleString()}`;
+                
+                const changeElement = document.getElementById('btcChange');
+                changeElement.textContent = `${data.change_24h.toFixed(2)}%`;
+                changeElement.className = `badge ${data.change_24h >= 0 ? 'bg-success' : 'bg-danger'}`;
+                
+                bitcoinChart.update();
+            });
+    }
+
+    // Update every 30 seconds
+    setInterval(updatePrice, 30000);
+    updatePrice();
+
+    // Partner Distribution Chart with fixed linter errors
+    const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+    const partnerData = {
+        labels: JSON.parse('{{ partners|map(attribute="name")|list|tojson|safe }}'),
+        values: JSON.parse('{{ partners|map(attribute="ownership_percentage")|list|tojson|safe }}')
+    };
+
+    new Chart(distributionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: partnerData.labels,
+            datasets: [{
+                data: partnerData.values,
+                backgroundColor: [
+                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                    '#9966FF', '#FF9F40', '#33CC99', '#FF99CC'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.label}: ${context.raw}%`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Calculate and display next contribution date
+    const today = new Date();
+    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+    document.getElementById('nextContributionDate').textContent = 
+        nextMonth.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+});
+</script>
+{% endblock %}
+{% endblock %} 

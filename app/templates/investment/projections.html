@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Bitcoin Investment Simulator</h5>
+            </div>
+            <div class="card-body">
+                <!-- Control Panel -->
+                <div class="row mb-4">
+                    <!-- Monthly Contribution -->
+                    <div class="col-md-4">
+                        <label class="form-label">Monthly Team Contribution</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="monthlyContribution" 
+                                   value="800" min="100" step="100">
+                        </div>
+                    </div>
+                    
+                    <!-- Bitcoin Price Change Slider -->
+                    <div class="col-md-4">
+                        <label class="form-label">Bitcoin Price Change</label>
+                        <input type="range" class="form-range" id="btcChangeSlider" 
+                               min="-50" max="200" value="0" step="5">
+                        <div class="d-flex justify-content-between">
+                            <small class="text-danger">-50%</small>
+                            <span id="btcChangeValue" class="badge bg-primary">0%</span>
+                            <small class="text-success">+200%</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Time Period -->
+                    <div class="col-md-4">
+                        <label class="form-label">Projection Period</label>
+                        <select class="form-select" id="projectionPeriod">
+                            <option value="12">1 Year</option>
+                            <option value="24">2 Years</option>
+                            <option value="60" selected>5 Years</option>
+                            <option value="120">10 Years</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Current Bitcoin Price -->
+                <div class="alert alert-info mb-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            <h6 class="mb-0">Current Bitcoin Price</h6>
+                            <h4>${{ "{:,.2f}".format(btc_price) }}</h4>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="mb-0">Projected Bitcoin Price</h6>
+                            <h4 id="projectedBtcPrice">$0</h4>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="mb-0">Price Change Impact</h6>
+                            <h4 id="priceChangeImpact">0%</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Projection Chart -->
+                <div class="chart-container" style="position: relative; height: 400px;">
+                    <canvas id="projectionChart"></canvas>
+                </div>
+
+                <!-- Summary Stats -->
+                <div class="row mt-4">
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <h6>Total Investment</h6>
+                            <h3 id="totalInvestment">$0</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <h6>Projected BTC</h6>
+                            <h3 id="projectedBTC">0 BTC</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <h6>Projected Value</h6>
+                            <h3 id="projectedValue">$0</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <h6>ROI</h6>
+                            <h3 id="projectedROI">0%</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('projectionChart').getContext('2d');
+    let projectionChart;
+    const currentBtcPrice = {{ btc_price }};
+
+    function calculateProjections() {
+        const monthlyContribution = parseFloat(document.getElementById('monthlyContribution').value);
+        const btcPriceChange = parseFloat(document.getElementById('btcChangeSlider').value) / 100;
+        const months = parseInt(document.getElementById('projectionPeriod').value);
+        
+        // Calculate projected BTC price
+        const projectedPrice = currentBtcPrice * (1 + btcPriceChange);
+        
+        // Update price displays
+        document.getElementById('projectedBtcPrice').textContent = 
+            `$${projectedPrice.toLocaleString()}`;
+        document.getElementById('priceChangeImpact').textContent = 
+            `${(btcPriceChange * 100).toFixed(1)}%`;
+        
+        const labels = [];
+        const investmentData = [];
+        const valueData = [];
+        let totalInvested = 0;
+        let totalBTC = 0;
+        
+        // Calculate monthly accumulation
+        for (let i = 0; i <= months; i++) {
+            // Generate date label
+            const date = new Date();
+            date.setMonth(date.getMonth() + i);
+            labels.push(date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }));
+            
+            // Calculate values for this month
+            if (i > 0) {
+                const monthlyBTC = monthlyContribution / 
+                    (currentBtcPrice + (projectedPrice - currentBtcPrice) * (i / months));
+                totalBTC += monthlyBTC;
+                totalInvested += monthlyContribution;
+            }
+            
+            investmentData.push(totalInvested);
+            valueData.push(totalBTC * projectedPrice);
+        }
+        
+        // Update summary stats
+        document.getElementById('totalInvestment').textContent = 
+            `$${totalInvested.toLocaleString()}`;
+        document.getElementById('projectedBTC').textContent = 
+            `${totalBTC.toFixed(8)} BTC`;
+        document.getElementById('projectedValue').textContent = 
+            `$${(totalBTC * projectedPrice).toLocaleString()}`;
+        document.getElementById('projectedROI').textContent = 
+            `${((totalBTC * projectedPrice / totalInvested - 1) * 100).toFixed(1)}%`;
+        
+        return { labels, investmentData, valueData };
+    }
+
+    function updateChart() {
+        const data = calculateProjections();
+        
+        if (projectionChart) {
+            projectionChart.destroy();
+        }
+        
+        projectionChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: 'Total Investment',
+                    data: data.investmentData,
+                    borderColor: '#FF9F40',
+                    backgroundColor: '#FF9F4020',
+                    fill: true
+                }, {
+                    label: 'Portfolio Value',
+                    data: data.valueData,
+                    borderColor: '#4BC0C0',
+                    backgroundColor: '#4BC0C020',
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: $${context.raw.toLocaleString()}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Update Bitcoin change display
+    document.getElementById('btcChangeSlider').addEventListener('input', function(e) {
+        const value = parseInt(e.target.value);
+        const element = document.getElementById('btcChangeValue');
+        element.textContent = `${value > 0 ? '+' : ''}${value}%`;
+        element.className = `badge ${value >= 0 ? 'bg-success' : 'bg-danger'}`;
+        updateChart();
+    });
+
+    // Add event listeners for other controls
+    document.getElementById('monthlyContribution').addEventListener('input', updateChart);
+    document.getElementById('projectionPeriod').addEventListener('change', updateChart);
+
+    // Initial chart render
+    updateChart();
+});
+</script>
+{% endblock %} 

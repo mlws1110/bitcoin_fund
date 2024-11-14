@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Announcements</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Recent Announcements</h5>
+            </div>
+            <div class="card-body">
+                {% for announcement in announcements %}
+                <div class="announcement-card mb-4 priority-{{ announcement.priority }}">
+                    <h5>{{ announcement.title }}</h5>
+                    <p>{{ announcement.content }}</p>
+                    <small class="text-muted">Posted: {{ announcement.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

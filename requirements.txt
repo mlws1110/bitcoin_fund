@@ -1,0 +1,8 @@
+Flask==2.3.3
+Flask-SQLAlchemy==3.1.1
+Flask-Login==0.6.3
+Flask-Migrate==4.0.5
+requests==2.31.0
+Werkzeug==3.0.1
+newsapi-python==0.2.6
+beautifulsoup4==4.9.3 
