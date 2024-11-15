@@ -86,30 +86,28 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Simulate Bitcoin price updates
-    function updateBitcoinPrice() {
-        const price = Math.random() * (50000 - 40000) + 40000;
-        const change = (Math.random() * 10) - 5;
-        
-        document.getElementById('btcPrice').textContent = `$${price.toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        })}`;
-        
-        const changeElement = document.getElementById('btcChange');
-        changeElement.textContent = `${change.toFixed(2)}%`;
-        changeElement.className = `badge ${change >= 0 ? 'bg-success' : 'bg-danger'}`;
-        
-        // Update chart
-        const now = new Date();
-        priceData.labels.push(now.toLocaleTimeString());
-        priceData.prices.push(price);
-        
-        if (priceData.labels.length > 20) {
-            priceData.labels.shift();
-            priceData.prices.shift();
+    async function updateBitcoinPrice() {
+        try {
+            const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true');
+            const data = await response.json();
+            const price = data.bitcoin.usd;
+            const change = data.bitcoin.usd_24h_change;
+            
+            document.getElementById('btcPrice').textContent = 
+                `$${price.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                })}`;
+            
+            const changeElement = document.getElementById('btcChange');
+            changeElement.textContent = `${change.toFixed(2)}%`;
+            changeElement.className = `badge ${change >= 0 ? 'bg-success' : 'bg-danger'}`;
+            
+            // Update chart
+            updatePriceChart(price);
+        } catch (error) {
+            console.error('Error fetching Bitcoin price:', error);
         }
-        
-        bitcoinChart.update();
     }
 
     // Update price every 30 seconds

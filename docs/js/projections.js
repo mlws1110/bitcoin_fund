@@ -1,50 +1,64 @@
 document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('projectionChart').getContext('2d');
     let projectionChart;
-    const currentBtcPrice = 45000; // Example starting price
+    let currentBtcPrice = 45000; // Will be updated with real price
+
+    // Fetch current Bitcoin price
+    fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd')
+        .then(response => response.json())
+        .then(data => {
+            currentBtcPrice = data.bitcoin.usd;
+            updateChart();
+        });
 
     function calculateProjections() {
         const monthlyContribution = parseFloat(document.getElementById('monthlyContribution').value);
-        const btcPriceChange = parseFloat(document.getElementById('btcChangeSlider').value) / 100;
-        const months = parseInt(document.getElementById('projectionPeriod').value);
-        
-        // Calculate projected BTC price
-        const projectedPrice = currentBtcPrice * (1 + btcPriceChange);
+        const annualReturn = parseFloat(document.getElementById('btcChangeSlider').value) / 100;
+        const years = parseInt(document.getElementById('projectionPeriod').value) / 12;
         
         const labels = [];
         const investmentData = [];
         const valueData = [];
-        let totalInvested = 0;
-        let totalBTC = 0;
         
-        // Calculate monthly accumulation
-        for (let i = 0; i <= months; i++) {
-            // Generate date label
+        // Calculate yearly values instead of monthly
+        for (let year = 0; year <= years; year++) {
+            // Generate year label
             const date = new Date();
-            date.setMonth(date.getMonth() + i);
-            labels.push(date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }));
+            date.setFullYear(date.getFullYear() + year);
+            labels.push(date.getFullYear().toString());
             
-            // Calculate values for this month
-            if (i > 0) {
-                const monthlyBTC = monthlyContribution / 
-                    (currentBtcPrice + (projectedPrice - currentBtcPrice) * (i / months));
-                totalBTC += monthlyBTC;
-                totalInvested += monthlyContribution;
-            }
-            
+            // Calculate total invested for this year
+            const totalInvested = monthlyContribution * 12 * year;
             investmentData.push(totalInvested);
-            valueData.push(totalBTC * projectedPrice);
+            
+            // Calculate BTC price for this year using compound annual growth
+            const projectedPrice = currentBtcPrice * Math.pow(1 + annualReturn, year);
+            
+            // Calculate BTC accumulated (assuming average price over the year)
+            const yearlyBtc = year === 0 ? 0 : (monthlyContribution * 12) / 
+                (currentBtcPrice * Math.pow(1 + annualReturn, year - 0.5));
+            const totalBtc = yearlyBtc * year;
+            
+            // Calculate total value
+            valueData.push(totalBtc * projectedPrice);
         }
         
         // Update summary stats
+        const finalYear = years;
+        const totalInvested = monthlyContribution * 12 * finalYear;
+        const finalPrice = currentBtcPrice * Math.pow(1 + annualReturn, finalYear);
+        const totalBtc = (monthlyContribution * 12 * finalYear) / 
+            (currentBtcPrice * Math.pow(1 + annualReturn, finalYear - 0.5));
+        const finalValue = totalBtc * finalPrice;
+        
         document.getElementById('totalInvestment').textContent = 
             `$${totalInvested.toLocaleString()}`;
         document.getElementById('projectedBTC').textContent = 
-            `${totalBTC.toFixed(8)} BTC`;
+            `${totalBtc.toFixed(8)} BTC`;
         document.getElementById('projectedValue').textContent = 
-            `$${(totalBTC * projectedPrice).toLocaleString()}`;
+            `$${finalValue.toLocaleString()}`;
         document.getElementById('projectedROI').textContent = 
-            `${((totalBTC * projectedPrice / totalInvested - 1) * 100).toFixed(1)}%`;
+            `${((finalValue / totalInvested - 1) * 100).toFixed(1)}%`;
         
         return { labels, investmentData, valueData };
     }
